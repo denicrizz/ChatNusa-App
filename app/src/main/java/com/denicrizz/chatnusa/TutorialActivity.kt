@@ -51,7 +51,7 @@ fun TutorialScreen() {
             imageRes = R.drawable.tutorial_image_1
         ),
         TutorialPage(
-            title = "Sistem Informasi Unp Kediri",
+            title = "Sistem Informasi Unp Kedirii",
             description = "Kamu bisa akses info seputar Unp Kediri.",
             imageRes = R.drawable.bg
         ),
