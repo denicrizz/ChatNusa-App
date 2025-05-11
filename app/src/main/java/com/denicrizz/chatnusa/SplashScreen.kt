@@ -98,11 +98,7 @@ fun SplashScreen() {
     }
 }
 
-@Preview(showBackground = true,)
-@Composable
-fun PreviewSplashScreen() {
-    SplashScreen()
-}
+
 
 
 

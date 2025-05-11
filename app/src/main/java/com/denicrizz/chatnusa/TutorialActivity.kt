@@ -46,18 +46,18 @@ fun TutorialScreen() {
 
     val tutorialItems = listOf(
         TutorialPage(
-            title = "Selamat Datang di BatikRek",
-            description = "Aplikasi ini membantu Anda menemukan batik favorit Anda.",
+            title = "Asisten Digital",
+            description = "Hai butuh bantuan? Tenang, Aku siap bantu.",
+            imageRes = R.drawable.tutorial_image_1
+        ),
+        TutorialPage(
+            title = "Sistem Informasi Unp Kediri",
+            description = "Kamu bisa akses info seputar Unp Kediri.",
             imageRes = R.drawable.bg
         ),
         TutorialPage(
-            title = "Temukan Batik",
-            description = "Cari dan jelajahi berbagai jenis batik dari Benang Raja.",
-            imageRes = R.drawable.bg
-        ),
-        TutorialPage(
-            title = "Tidak Bingung",
-            description = "Memudahkan anda memilih batik yang sesuai dengan acara.",
+            title = "Akses Skripsi Kating Unp Kediri",
+            description = "Aku juga bisa bantu kamu mencarikan skripsi yang kamu mau.",
             imageRes = R.drawable.bg
         )
     )
@@ -164,8 +164,4 @@ data class TutorialPage(
     val imageRes: Int
 )
 
-@Preview(showBackground = true, device = "id:pixel_5")
-@Composable
-fun PreviewTutorialScreen() {
-    TutorialScreen()
-}
+
