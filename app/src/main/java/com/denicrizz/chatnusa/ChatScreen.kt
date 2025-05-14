@@ -15,7 +15,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.text.font.FontWeight
 import kotlinx.coroutines.launch
-
 data class Message(val sender: String, val text: String)
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -25,6 +24,8 @@ fun ChatScreen() {
     val scope = rememberCoroutineScope()
 
     var inputText by remember { mutableStateOf("") }
+    var isDarkTheme by remember { mutableStateOf(false) }
+
     var messages by remember {
         mutableStateOf(
             listOf(
@@ -43,104 +44,116 @@ fun ChatScreen() {
 
     val scrollState = rememberScrollState()
 
-    ModalNavigationDrawer(
-        drawerState = drawerState,
-        drawerContent = {
-            ModalDrawerSheet {
-                Text(
-                    "Menu",
-                    modifier = Modifier.padding(16.dp),
-                    style = MaterialTheme.typography.titleMedium
-                )
-                NavigationDrawerItem(
-                    label = { Text("Beranda") },
-                    selected = false,
-                    onClick = {
-                        scope.launch { drawerState.close() }
-                    }
-                )
-                NavigationDrawerItem(
-                    label = { Text("Gemini") },
-                    selected = false,
-                    onClick = {
-                        scope.launch { drawerState.close() }
-                    }
-                )
-                NavigationDrawerItem(
-                    label = { Text("Tentang Aplikasi") },
-                    selected = false,
-                    onClick = {
-                        scope.launch { drawerState.close() }
-                    }
-                )
-            }
-        }
+    MaterialTheme(
+        colorScheme = if (isDarkTheme) darkColorScheme() else lightColorScheme()
     ) {
-        Surface(
-            modifier = Modifier.fillMaxSize(),
-            color = MaterialTheme.colorScheme.background
+        ModalNavigationDrawer(
+            drawerState = drawerState,
+            drawerContent = {
+                ModalDrawerSheet {
+                    Text(
+                        "Menu",
+                        modifier = Modifier.padding(16.dp),
+                        style = MaterialTheme.typography.titleMedium
+                    )
+                    NavigationDrawerItem(
+                        label = { Text("Beranda") },
+                        selected = false,
+                        onClick = {
+                            scope.launch { drawerState.close() }
+                        }
+                    )
+                    NavigationDrawerItem(
+                        label = { Text("Gemini") },
+                        selected = false,
+                        onClick = {
+                            scope.launch { drawerState.close() }
+                        }
+                    )
+                    NavigationDrawerItem(
+                        label = { Text("Tentang Aplikasi") },
+                        selected = false,
+                        onClick = {
+                            scope.launch { drawerState.close() }
+                        }
+                    )
+                }
+            }
         ) {
-            Column {
-                // Top App Bar dengan hamburger
-                TopAppBar(
-                    title = {
-                        Text("ChatBot", fontWeight = FontWeight.Bold, fontSize = 20.sp)
-                    },
-                    navigationIcon = {
+            Surface(
+                modifier = Modifier.fillMaxSize(),
+                color = MaterialTheme.colorScheme.background
+            ) {
+                Column {
+                    // Top App Bar dengan Hamburger + Icon Mode
+                    TopAppBar(
+                        title = {
+                            Text("ChatBot", fontWeight = FontWeight.Bold, fontSize = 20.sp)
+                        },
+                        navigationIcon = {
+                            IconButton(onClick = {
+                                scope.launch { drawerState.open() }
+                            }) {
+                                Icon(Icons.Filled.Menu, contentDescription = "Menu")
+                            }
+                        },
+                        actions = {
+                            IconButton(onClick = {
+                                isDarkTheme = !isDarkTheme
+                            }) {
+                                Icon(
+                                    imageVector = if (isDarkTheme) Icons.Default.Send else Icons.Default.Menu,
+                                    contentDescription = if (isDarkTheme) "Mode Terang" else "Mode Gelap"
+                                )
+                            }
+                        }
+                    )
+
+                    // Chat messages
+                    Column(
+                        modifier = Modifier
+                            .weight(1f)
+                            .padding(8.dp)
+                            .verticalScroll(scrollState)
+                    ) {
+                        messages.forEach { message ->
+                            ChatBubble(message)
+                        }
+                    }
+
+                    LaunchedEffect(messages.size) {
+                        scrollState.animateScrollTo(scrollState.maxValue)
+                    }
+
+                    // Input area
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(8.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        TextField(
+                            value = inputText,
+                            onValueChange = { inputText = it },
+                            modifier = Modifier.weight(1f),
+                            placeholder = { Text("Tulis pertanyaanmu") },
+                            maxLines = 2
+                        )
                         IconButton(onClick = {
-                            scope.launch {
-                                drawerState.open()
+                            if (inputText.trim().isNotEmpty()) {
+                                messages = messages + Message("user", inputText.trim())
+                                inputText = ""
                             }
                         }) {
-                            Icon(Icons.Filled.Menu, contentDescription = "Menu")
+                            Icon(Icons.Default.Send, contentDescription = "Kirim")
                         }
-                    }
-                )
-
-                // Chat messages
-                Column(
-                    modifier = Modifier
-                        .weight(1f)
-                        .padding(8.dp)
-                        .verticalScroll(scrollState)
-                ) {
-                    messages.forEach { message ->
-                        ChatBubble(message)
-                    }
-                }
-
-                // Auto-scroll ke bawah
-                LaunchedEffect(messages.size) {
-                    scrollState.animateScrollTo(scrollState.maxValue)
-                }
-
-                // Input area
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(8.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    TextField(
-                        value = inputText,
-                        onValueChange = { inputText = it },
-                        modifier = Modifier.weight(1f),
-                        placeholder = { Text("Tulis pertanyaanmu") },
-                        maxLines = 2
-                    )
-                    IconButton(onClick = {
-                        if (inputText.trim().isNotEmpty()) {
-                            messages = messages + Message("user", inputText.trim())
-                            inputText = ""
-                        }
-                    }) {
-                        Icon(Icons.Default.Send, contentDescription = "Kirim")
                     }
                 }
             }
         }
     }
 }
+
 
 @Composable
 fun ChatBubble(message: Message) {
