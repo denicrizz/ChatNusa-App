@@ -2,6 +2,7 @@
 
 package com.denicrizz.chatnusa
 
+import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -28,7 +29,6 @@ import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.delay
@@ -37,11 +37,24 @@ import kotlinx.coroutines.delay
 class TutorialActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContent {
-            TutorialScreen()
+
+        // Mengecek apakah tutorial sudah pernah dilihat
+        val sharedPreferences = getSharedPreferences("tutorial_prefs", Context.MODE_PRIVATE)
+        val isTutorialViewed = sharedPreferences.getBoolean("isTutorialViewed", false)
+
+        if (isTutorialViewed) {
+            // Jika tutorial sudah dilihat, langsung buka MainActivity
+            startActivity(Intent(this, MainActivity::class.java))
+            finish() // Tutup TutorialActivity
+        } else {
+            // Jika belum, tampilkan Tutorial Screen
+            setContent {
+                TutorialScreen()
+            }
         }
     }
 }
+
 val Font = FontFamily(
     Font(R.font.poppins_regular, FontWeight.Normal),
     Font(R.font.poppins_bold, FontWeight.Bold)
@@ -54,24 +67,11 @@ fun TutorialScreen() {
     val pagerState = rememberPagerState(pageCount = { 3 })
 
     val tutorialItems = listOf(
-        TutorialPage(
-            title = "Asisten Digital",
-            description = "Hai butuh bantuan? Tenang, Aku siap bantu.",
-            imageRes = R.drawable.tutorial_image_1,
-        ),
-        TutorialPage(
-            title = "Sistem Informasi Unp Kedirii",
-            description = "Kamu bisa akses info seputar Unp Kediri.",
-            imageRes = R.drawable.bg
-        ),
-        TutorialPage(
-            title = "Akses Skripsi Kating Unp Kediri",
-            description = "Aku juga bisa bantu kamu mencarikan skripsi yang kamu mau.",
-            imageRes = R.drawable.bg
-        )
+        TutorialPage("Asisten Digital", "Hai butuh bantuan? Tenang, Aku siap bantu.", R.drawable.tutorial_image_1),
+        TutorialPage("Sistem Informasi Unp Kedirii", "Kamu bisa akses info seputar Unp Kediri.", R.drawable.bg),
+        TutorialPage("Akses Skripsi Kating Unp Kediri", "Aku juga bisa bantu kamu mencarikan skripsi yang kamu mau.", R.drawable.bg)
     )
 
-    // Auto-scroll setiap 3 detik
     LaunchedEffect(pagerState) {
         while (true) {
             delay(3000)
@@ -93,7 +93,6 @@ fun TutorialScreen() {
             TutorialItem(item.title, item.description, item.imageRes)
         }
 
-        // Dot Indicator
         Row(
             modifier = Modifier
                 .height(50.dp)
@@ -111,15 +110,18 @@ fun TutorialScreen() {
             }
         }
 
-        // Tombol "Mulai"
         Button(
             onClick = {
-                val intent = Intent(context, MainActivity::class.java)
+                // Set tutorial telah dilihat di SharedPreferences
+                val sharedPreferences = context.getSharedPreferences("tutorial_prefs", Context.MODE_PRIVATE)
+                sharedPreferences.edit().putBoolean("isTutorialViewed", true).apply()
+
+                val intent = Intent(context, MainActivity::class.java).apply {
+                    flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+                }
                 context.startActivity(intent)
             },
-            colors = ButtonDefaults.buttonColors(
-                containerColor = Color(0xFF3E2723)
-            ),
+            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF3E2723)),
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(16.dp)
@@ -172,5 +174,3 @@ data class TutorialPage(
     val description: String,
     val imageRes: Int
 )
-
-
