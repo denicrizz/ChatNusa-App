@@ -85,7 +85,7 @@ fun ChatScreen() {
                 color = MaterialTheme.colorScheme.background
             ) {
                 Column {
-                    // Top App Bar dengan Hamburger + Icon Mode
+                    // Top App Bar dengan Hamburger + Switch Mode Malam
                     TopAppBar(
                         title = {
                             Text("ChatBot", fontWeight = FontWeight.Bold, fontSize = 20.sp)
@@ -98,14 +98,10 @@ fun ChatScreen() {
                             }
                         },
                         actions = {
-                            IconButton(onClick = {
-                                isDarkTheme = !isDarkTheme
-                            }) {
-                                Icon(
-                                    imageVector = if (isDarkTheme) Icons.Default.Send else Icons.Default.Menu,
-                                    contentDescription = if (isDarkTheme) "Mode Terang" else "Mode Gelap"
-                                )
-                            }
+                            Switch(
+                                checked = isDarkTheme,
+                                onCheckedChange = { isDarkTheme = it }
+                            )
                         }
                     )
 

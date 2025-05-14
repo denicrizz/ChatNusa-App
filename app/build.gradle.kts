@@ -58,6 +58,7 @@ dependencies {
     debugImplementation("androidx.compose.ui:ui-tooling")
     androidTestImplementation("androidx.compose.ui:ui-test-junit4")
     implementation ("androidx.navigation:navigation-compose:2.7.7")
+    implementation("androidx.compose.material3:material3:1.3.2")
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
