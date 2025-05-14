@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Send
 import androidx.compose.material3.*
@@ -40,6 +41,11 @@ fun ChatScreen() {
                 Message("bot", "Baik, senang bisa bantu kamu!")
             )
         )
+    }
+
+    // Fungsi untuk menghapus riwayat chat
+    fun clearChatHistory() {
+        messages = listOf(Message("bot", "Hai, saya siap bantu kamu!"))
     }
 
     val scrollState = rememberScrollState()
@@ -116,6 +122,17 @@ fun ChatScreen() {
                                 Icon(Icons.Filled.Menu, contentDescription = "Menu")
                             }
                         },
+                        actions = {
+                            // Tombol hapus riwayat chat
+                            IconButton(onClick = {
+                                clearChatHistory()
+                            }) {
+                                Icon(Icons.Filled.Delete, contentDescription = "Hapus Riwayat Chat")
+                            }
+
+                            // Switch mode terang/gelap
+
+                        }
                     )
 
                     // Chat messages
