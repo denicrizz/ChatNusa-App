@@ -48,35 +48,54 @@ fun ChatScreen() {
         colorScheme = if (isDarkTheme) darkColorScheme() else lightColorScheme()
     ) {
         ModalNavigationDrawer(
-            drawerState = drawerState,
+            drawerState = drawerState,  // Tambahkan parameter drawerState
             drawerContent = {
                 ModalDrawerSheet {
-                    Text(
-                        "Menu",
-                        modifier = Modifier.padding(16.dp),
-                        style = MaterialTheme.typography.titleMedium
-                    )
-                    NavigationDrawerItem(
-                        label = { Text("Beranda") },
-                        selected = false,
-                        onClick = {
-                            scope.launch { drawerState.close() }
+                    Column(
+                        modifier = Modifier
+                            .fillMaxHeight()
+                            .padding(16.dp)
+                    ) {
+                        Text(
+                            "Menu",
+                            style = MaterialTheme.typography.titleMedium,
+                            modifier = Modifier.padding(bottom = 16.dp)
+                        )
+
+                        NavigationDrawerItem(
+                            label = { Text("Beranda") },
+                            selected = false,
+                            onClick = { scope.launch { drawerState.close() } }
+                        )
+                        NavigationDrawerItem(
+                            label = { Text("Gemini") },
+                            selected = false,
+                            onClick = { scope.launch { drawerState.close() } }
+                        )
+                        NavigationDrawerItem(
+                            label = { Text("Tentang Aplikasi") },
+                            selected = false,
+                            onClick = { scope.launch { drawerState.close() } }
+                        )
+
+                        // Spacer untuk mendorong switch ke bawah
+                        Spacer(modifier = Modifier.weight(1f))
+
+                        Divider(modifier = Modifier.padding(vertical = 8.dp))
+
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth(),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.SpaceBetween
+                        ) {
+                            Text(text = if (isDarkTheme) "Mode Gelap" else "Mode Terang")
+                            Switch(
+                                checked = isDarkTheme,
+                                onCheckedChange = { isDarkTheme = it }
+                            )
                         }
-                    )
-                    NavigationDrawerItem(
-                        label = { Text("Gemini") },
-                        selected = false,
-                        onClick = {
-                            scope.launch { drawerState.close() }
-                        }
-                    )
-                    NavigationDrawerItem(
-                        label = { Text("Tentang Aplikasi") },
-                        selected = false,
-                        onClick = {
-                            scope.launch { drawerState.close() }
-                        }
-                    )
+                    }
                 }
             }
         ) {
@@ -97,12 +116,6 @@ fun ChatScreen() {
                                 Icon(Icons.Filled.Menu, contentDescription = "Menu")
                             }
                         },
-                        actions = {
-                            Switch(
-                                checked = isDarkTheme,
-                                onCheckedChange = { isDarkTheme = it }
-                            )
-                        }
                     )
 
                     // Chat messages
@@ -141,7 +154,7 @@ fun ChatScreen() {
                                 inputText = ""
                             }
                         }) {
-                            Icon(Icons.Default.Send, contentDescription = "Kirim")
+                            Icon(Icons.Filled.Send, contentDescription = "Kirim")  // Konsisten menggunakan Filled bukan Default
                         }
                     }
                 }
