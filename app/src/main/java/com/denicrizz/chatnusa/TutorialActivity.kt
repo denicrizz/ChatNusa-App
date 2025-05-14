@@ -14,6 +14,7 @@ import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -23,6 +24,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.Font
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -30,6 +33,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.delay
 
+@ExperimentalMaterial3Api
 class TutorialActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -38,7 +42,12 @@ class TutorialActivity : ComponentActivity() {
         }
     }
 }
+val Font = FontFamily(
+    Font(R.font.poppins_regular, FontWeight.Normal),
+    Font(R.font.poppins_bold, FontWeight.Bold)
+)
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TutorialScreen() {
     val context = LocalContext.current
@@ -48,7 +57,7 @@ fun TutorialScreen() {
         TutorialPage(
             title = "Asisten Digital",
             description = "Hai butuh bantuan? Tenang, Aku siap bantu.",
-            imageRes = R.drawable.tutorial_image_1
+            imageRes = R.drawable.tutorial_image_1,
         ),
         TutorialPage(
             title = "Sistem Informasi Unp Kedirii",

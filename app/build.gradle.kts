@@ -49,6 +49,22 @@ dependencies {
     implementation(libs.androidx.ui.graphics)
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
+    // Pakai BOM sekali saja
+    implementation(platform("androidx.compose:compose-bom:2023.10.01"))
+
+// Material3 dengan versi minimal 1.1.0-alpha03 (1.2.0 recommended)
+    implementation("androidx.compose.material3:material3")
+
+// Tambahan Compose UI (jika belum otomatis dari BOM)
+    implementation("androidx.compose.ui:ui")
+    implementation("androidx.compose.ui:ui-tooling-preview")
+    implementation("androidx.compose.ui:ui-graphics")
+    implementation("androidx.activity:activity-compose")
+
+// Debug dan test
+    debugImplementation("androidx.compose.ui:ui-tooling")
+    androidTestImplementation("androidx.compose.ui:ui-test-junit4")
+
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
