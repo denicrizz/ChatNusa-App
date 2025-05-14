@@ -88,7 +88,7 @@ fun ChatScreen() {
                     // Top App Bar dengan Hamburger + Switch Mode Malam
                     TopAppBar(
                         title = {
-                            Text("ChatBot", fontWeight = FontWeight.Bold, fontSize = 20.sp)
+                            Text("ChatNusa", fontWeight = FontWeight.Bold, fontSize = 20.sp)
                         },
                         navigationIcon = {
                             IconButton(onClick = {
