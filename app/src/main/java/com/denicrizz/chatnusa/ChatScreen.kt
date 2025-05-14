@@ -60,14 +60,14 @@ fun ChatScreen() {
                     }
                 )
                 NavigationDrawerItem(
-                    label = { Text("Tentang Aplikasi") },
+                    label = { Text("Gemini") },
                     selected = false,
                     onClick = {
                         scope.launch { drawerState.close() }
                     }
                 )
                 NavigationDrawerItem(
-                    label = { Text("Keluar") },
+                    label = { Text("Tentang Aplikasi") },
                     selected = false,
                     onClick = {
                         scope.launch { drawerState.close() }
