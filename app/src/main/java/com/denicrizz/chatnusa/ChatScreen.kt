@@ -16,8 +16,33 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.text.font.FontWeight
 import kotlinx.coroutines.launch
-data class Message(val sender: String, val text: String)
+import retrofit2.Retrofit
+import retrofit2.converter.gson.GsonConverterFactory
+import retrofit2.http.Body
+import retrofit2.http.POST
 
+// --- Retrofit API Setup ---
+
+data class Message(val sender: String, val text: String)
+data class ChatRequest(val message: String)
+data class ChatResponse(val reply: String)
+
+interface ChatApiService {
+    @POST("chat") // Ganti dengan endpoint API kamu
+    suspend fun sendMessage(@Body request: ChatRequest): ChatResponse
+}
+
+object RetrofitClient {
+    private const val BASE_URL = "https://your-api-url.com/" // Ganti dengan base URL API kamu
+
+    val api: ChatApiService by lazy {
+        Retrofit.Builder()
+            .baseUrl(BASE_URL)
+            .addConverterFactory(GsonConverterFactory.create())
+            .build()
+            .create(ChatApiService::class.java)
+    }
+}
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ChatScreen() {
@@ -26,24 +51,16 @@ fun ChatScreen() {
 
     var inputText by remember { mutableStateOf("") }
     var isDarkTheme by remember { mutableStateOf(false) }
+    val coroutineScope = rememberCoroutineScope()
 
     var messages by remember {
         mutableStateOf(
             listOf(
-                Message("bot", "Hai, saya siap bantu kamu!"),
-                Message("user", "carikan saya skripsi tentang TF-IDF"),
-                Message(
-                    "bot",
-                    "Berikut adalah hasil yang mungkin bisa membantu anda:\n" +
-                            "Analisis sentiment pengguna telegram menggunakan metode TF-IDF\n(link repository >)"
-                ),
-                Message("user", "Terimakasih!"),
-                Message("bot", "Baik, senang bisa bantu kamu!")
+                Message("bot", "Hai, saya Chat Nusa siap bantu kamu!")
             )
         )
     }
 
-    // Fungsi untuk menghapus riwayat chat
     fun clearChatHistory() {
         messages = listOf(Message("bot", "Hai, saya siap bantu kamu!"))
     }
@@ -54,7 +71,7 @@ fun ChatScreen() {
         colorScheme = if (isDarkTheme) darkColorScheme() else lightColorScheme()
     ) {
         ModalNavigationDrawer(
-            drawerState = drawerState,  // Tambahkan parameter drawerState
+            drawerState = drawerState,
             drawerContent = {
                 ModalDrawerSheet {
                     Column(
@@ -84,14 +101,11 @@ fun ChatScreen() {
                             onClick = { scope.launch { drawerState.close() } }
                         )
 
-                        // Spacer untuk mendorong switch ke bawah
                         Spacer(modifier = Modifier.weight(1f))
-
                         Divider(modifier = Modifier.padding(vertical = 8.dp))
 
                         Row(
-                            modifier = Modifier
-                                .fillMaxWidth(),
+                            modifier = Modifier.fillMaxWidth(),
                             verticalAlignment = Alignment.CenterVertically,
                             horizontalArrangement = Arrangement.SpaceBetween
                         ) {
@@ -110,7 +124,6 @@ fun ChatScreen() {
                 color = MaterialTheme.colorScheme.background
             ) {
                 Column {
-                    // Top App Bar dengan Hamburger + Switch Mode Malam
                     TopAppBar(
                         title = {
                             Text("ChatNusa", fontWeight = FontWeight.Bold, fontSize = 20.sp)
@@ -123,15 +136,11 @@ fun ChatScreen() {
                             }
                         },
                         actions = {
-                            // Tombol hapus riwayat chat
                             IconButton(onClick = {
                                 clearChatHistory()
                             }) {
                                 Icon(Icons.Filled.Delete, contentDescription = "Hapus Riwayat Chat")
                             }
-
-                            // Switch mode terang/gelap
-
                         }
                     )
 
@@ -165,13 +174,24 @@ fun ChatScreen() {
                             placeholder = { Text("Tulis pertanyaanmu") },
                             maxLines = 2
                         )
+
                         IconButton(onClick = {
                             if (inputText.trim().isNotEmpty()) {
-                                messages = messages + Message("user", inputText.trim())
+                                val userMessage = inputText.trim()
+                                messages = messages + Message("user", userMessage)
                                 inputText = ""
+
+                                coroutineScope.launch {
+                                    try {
+                                        val response = RetrofitClient.api.sendMessage(ChatRequest(userMessage))
+                                        messages = messages + Message("bot", response.reply)
+                                    } catch (e: Exception) {
+                                        messages = messages + Message("bot", "Gagal mengambil jawaban: ${e.localizedMessage}")
+                                    }
+                                }
                             }
                         }) {
-                            Icon(Icons.Filled.Send, contentDescription = "Kirim")  // Konsisten menggunakan Filled bukan Default
+                            Icon(Icons.Filled.Send, contentDescription = "Kirim")
                         }
                     }
                 }
@@ -179,7 +199,6 @@ fun ChatScreen() {
         }
     }
 }
-
 
 @Composable
 fun ChatBubble(message: Message) {
