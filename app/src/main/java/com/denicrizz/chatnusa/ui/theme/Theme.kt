@@ -52,7 +52,7 @@ fun ChatNusaTheme(
 
     MaterialTheme(
         colorScheme = colorScheme,
-        typography = Typography,
+        typography = ModernTypography,
         content = content
     )
 }

@@ -1,7 +1,5 @@
 @file:OptIn(ExperimentalFoundationApi::class)
-
 package com.denicrizz.chatnusa
-
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
@@ -32,6 +30,9 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.delay
+import androidx.compose.material3.MaterialTheme
+import com.denicrizz.chatnusa.ui.theme.ModernTypography
+
 
 @ExperimentalMaterial3Api
 class TutorialActivity : ComponentActivity() {
@@ -80,53 +81,54 @@ fun TutorialScreen() {
         }
     }
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(Color(0xFF674636))
-    ) {
-        HorizontalPager(
-            state = pagerState,
-            modifier = Modifier.weight(1f)
-        ) { page ->
-            val item = tutorialItems[page]
-            TutorialItem(item.title, item.description, item.imageRes)
-        }
-
-        Row(
+    MaterialTheme(typography = ModernTypography,) {
+        Column(
             modifier = Modifier
-                .height(50.dp)
-                .fillMaxWidth(),
-            horizontalArrangement = Arrangement.Center
+                .fillMaxSize()
+                .background(Color(0xFF674636))
         ) {
-            repeat(pagerState.pageCount) { iteration ->
-                val color = if (pagerState.currentPage == iteration) Color.DarkGray else Color.LightGray
-                Box(
-                    modifier = Modifier
-                        .padding(4.dp)
-                        .size(8.dp)
-                        .background(color)
-                )
+            HorizontalPager(
+                state = pagerState,
+                modifier = Modifier.weight(1f)
+            ) { page ->
+                val item = tutorialItems[page]
+                TutorialItem(item.title, item.description, item.imageRes)
             }
-        }
 
-        Button(
-            onClick = {
-                // Set tutorial telah dilihat di SharedPreferences
-                val sharedPreferences = context.getSharedPreferences("tutorial_prefs", Context.MODE_PRIVATE)
-                sharedPreferences.edit().putBoolean("isTutorialViewed", true).apply()
-
-                val intent = Intent(context, MainActivity::class.java).apply {
-                    flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+            Row(
+                modifier = Modifier
+                    .height(50.dp)
+                    .fillMaxWidth(),
+                horizontalArrangement = Arrangement.Center
+            ) {
+                repeat(pagerState.pageCount) { iteration ->
+                    val color = if (pagerState.currentPage == iteration) Color.DarkGray else Color.LightGray
+                    Box(
+                        modifier = Modifier
+                            .padding(4.dp)
+                            .size(8.dp)
+                            .background(color)
+                    )
                 }
-                context.startActivity(intent)
-            },
-            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF3E2723)),
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp)
-        ) {
-            Text(text = "Mulai", color = Color.White)
+            }
+
+            Button(
+                onClick = {
+                    val sharedPreferences = context.getSharedPreferences("tutorial_prefs", Context.MODE_PRIVATE)
+                    sharedPreferences.edit().putBoolean("isTutorialViewed", true).apply()
+
+                    val intent = Intent(context, MainActivity::class.java).apply {
+                        flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+                    }
+                    context.startActivity(intent)
+                },
+                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF3E2723)),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp)
+            ) {
+                Text(text = "Mulai", color = Color.White)
+            }
         }
     }
 }
@@ -168,6 +170,7 @@ fun TutorialItem(title: String, description: String, imageRes: Int) {
         )
     }
 }
+
 
 data class TutorialPage(
     val title: String,

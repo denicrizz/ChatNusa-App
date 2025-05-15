@@ -8,11 +8,13 @@ import androidx.activity.compose.setContent
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
@@ -54,7 +56,6 @@ val ModernFont = FontFamily(
 
 @Composable
 fun SplashScreen() {
-    // Background gambar
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -72,11 +73,13 @@ fun SplashScreen() {
                 .padding(top = 100.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            // Logo
+            // Logo dengan radius bundar
             Image(
                 painter = painterResource(id = R.drawable.logo),
                 contentDescription = "Logo ChatNusa",
-                modifier = Modifier.size(150.dp)
+                modifier = Modifier
+                    .size(150.dp)
+                    .clip(RoundedCornerShape(24.dp)) // radius bundar
             )
 
             Spacer(modifier = Modifier.height(20.dp))
@@ -97,8 +100,22 @@ fun SplashScreen() {
                 color = Color.White
             )
         }
+
+        // Teks created by di bottom tengah
+        Text(
+            text = "Version 1.0",
+            fontSize = 14.sp,
+            color = Color.Black.copy(alpha = 0.7f),
+            fontFamily = ModernFont,
+            fontWeight = FontWeight.Normal,
+            modifier = Modifier
+                .align(Alignment.BottomCenter)
+                .padding(bottom = 20.dp),
+            textAlign = TextAlign.Center
+        )
     }
 }
+
 
 
 
