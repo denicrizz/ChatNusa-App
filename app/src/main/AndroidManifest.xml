@@ -14,7 +14,7 @@
         android:theme="@style/Theme.ChatNusa"
         tools:targetApi="35">
         <activity
-            android:name=".SplashActivity"
+            android:name=".screen.SplashActivity"
             android:exported="true"
             android:theme="@style/Theme.ChatNusa">
             <intent-filter>
@@ -23,7 +23,7 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".TutorialActivity"
+            android:name=".screen.TutorialActivity"
             android:exported="false"
             android:theme="@style/Theme.ChatNusa" />
         <activity

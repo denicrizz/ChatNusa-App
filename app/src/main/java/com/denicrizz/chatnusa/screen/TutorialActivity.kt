@@ -1,5 +1,6 @@
 @file:OptIn(ExperimentalFoundationApi::class)
-package com.denicrizz.chatnusa
+package com.denicrizz.chatnusa.screen
+import com.denicrizz.chatnusa.MainActivity
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
@@ -32,6 +33,7 @@ import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.delay
 import androidx.compose.material3.MaterialTheme
 import com.denicrizz.chatnusa.ui.theme.ModernTypography
+import com.denicrizz.chatnusa.R
 
 
 @ExperimentalMaterial3Api
@@ -40,7 +42,7 @@ class TutorialActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
 
         // Mengecek apakah tutorial sudah pernah dilihat
-        val sharedPreferences = getSharedPreferences("tutorial_prefs", Context.MODE_PRIVATE)
+        val sharedPreferences = getSharedPreferences("tutorial_prefs", MODE_PRIVATE)
         val isTutorialViewed = sharedPreferences.getBoolean("isTutorialViewed", false)
 
         if (isTutorialViewed) {
