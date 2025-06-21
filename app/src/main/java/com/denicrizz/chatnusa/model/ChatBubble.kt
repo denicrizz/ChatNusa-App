@@ -3,7 +3,6 @@ package com.denicrizz.chatnusa.model
 import android.content.Intent
 import android.net.Uri
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -39,32 +38,24 @@ fun ChatBubble(message: Message) {
     val botShape = RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp, bottomEnd = 16.dp, bottomStart = 0.dp)
     val shape = if (isUser) userShape else botShape
 
-    // Membuat AnnotatedString dengan deteksi URL
     fun linkify(text: String): AnnotatedString {
-        val urlPattern = Pattern.compile("(https?:\\/\\/\\S+)")
+        val urlPattern = Pattern.compile("(https?://\\S+)")
         val matcher = urlPattern.matcher(text)
-        val annotatedString = buildAnnotatedString {
+        return buildAnnotatedString {
             var lastIndex = 0
             while (matcher.find()) {
                 val start = matcher.start()
                 val end = matcher.end()
-
-                // Tambahkan teks sebelum link
                 append(text.substring(lastIndex, start))
-
-                // Tambahkan link dengan annotation
                 pushStringAnnotation(tag = "URL", annotation = text.substring(start, end))
-                withStyle(style = SpanStyle(color = Color(0xFF0645AD), textDecoration = TextDecoration.Underline)) {
+                withStyle(SpanStyle(color = Color(0xFF0645AD), textDecoration = TextDecoration.Underline)) {
                     append(text.substring(start, end))
                 }
                 pop()
-
                 lastIndex = end
             }
-            // Tambahkan teks setelah link terakhir
             append(text.substring(lastIndex))
         }
-        return annotatedString
     }
 
     Row(
@@ -86,20 +77,36 @@ fun ChatBubble(message: Message) {
             Spacer(modifier = Modifier.width(8.dp))
         }
 
-        Surface(shape = shape, color = bubbleColor, shadowElevation = 2.dp) {
-            ClickableText(
-                text = linkify(message.text),
-                style = MaterialTheme.typography.bodyLarge.copy(color = textColor),
-                modifier = Modifier.padding(10.dp),
-                onClick = { offset ->
-                    val annotations = linkify(message.text).getStringAnnotations("URL", offset, offset)
-                    if (annotations.isNotEmpty()) {
-                        val url = annotations[0].item
-                        val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
-                        context.startActivity(intent)
-                    }
+        Surface(
+            shape = shape,
+            color = bubbleColor,
+            shadowElevation = 2.dp
+        ) {
+            Box(modifier = Modifier.padding(10.dp)) {
+                if (isUser) {
+                    // User bubble
+                    Text(
+                        text = message.text,
+                        color = textColor,
+                        style = MaterialTheme.typography.bodyLarge
+                    )
+                } else {
+                    // Bot bubble with clickable link only
+                    ClickableText(
+                        text = linkify(message.text),
+                        style = MaterialTheme.typography.bodyLarge.copy(color = textColor),
+                        modifier = Modifier.fillMaxWidth(),
+                        onClick = { offset ->
+                            val annotations = linkify(message.text).getStringAnnotations("URL", offset, offset)
+                            if (annotations.isNotEmpty()) {
+                                val url = annotations[0].item
+                                val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
+                                context.startActivity(intent)
+                            }
+                        }
+                    )
                 }
-            )
+            }
         }
     }
 }
