@@ -1,5 +1,6 @@
 package com.denicrizz.chatnusa.screen
 
+import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -17,17 +18,25 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import com.denicrizz.chatnusa.R
 import com.denicrizz.chatnusa.api.RetrofitClient
+import com.denicrizz.chatnusa.component.AnimatedTypingIndicator
+import com.denicrizz.chatnusa.component.TypingIndicatorDefaults
 import com.denicrizz.chatnusa.model.ChatBubble
 import com.denicrizz.chatnusa.model.ChatRequest
+import com.denicrizz.chatnusa.model.Content
+import com.denicrizz.chatnusa.model.GeminiRequest
 import com.denicrizz.chatnusa.model.Message
+import com.denicrizz.chatnusa.model.Part
 import com.denicrizz.chatnusa.utils.ChatHistoryManager
+import com.denicrizz.chatnusa.utils.GeminiBuildModel
 import com.denicrizz.chatnusa.utils.ThemePreference
+import com.denicrizz.chatnusa.utils.getCurrentTimeFormatted
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
@@ -43,6 +52,10 @@ fun ChatScreen() {
     val isDarkTheme by ThemePreference.getTheme(context).collectAsState(initial = false)
     val backgroundImage = if (isDarkTheme) R.drawable.bg_dark else R.drawable.bg_light
 
+    var isBotTyping by remember { mutableStateOf(false) }
+    var typingDots by remember { mutableStateOf("") }
+
+
     var inputText by remember { mutableStateOf("") }
     var messages by remember {
         mutableStateOf(
@@ -54,6 +67,8 @@ fun ChatScreen() {
 
     var isHistoryScreen by remember { mutableStateOf(false) }
     var isAboutScreen by remember { mutableStateOf(false) }
+
+
 
     LaunchedEffect(messages) {
         ChatHistoryManager.saveHistory(context, messages)
@@ -89,7 +104,9 @@ fun ChatScreen() {
                         ModalNavigationDrawer(
                             drawerState = drawerState,
                             drawerContent = {
-                                ModalDrawerSheet {
+                                ModalDrawerSheet(
+                                    modifier = Modifier.width(LocalConfiguration.current.screenWidthDp.dp * 0.6f)
+                                ) {
                                     Column(
                                         modifier = Modifier
                                             .fillMaxHeight()
@@ -117,15 +134,9 @@ fun ChatScreen() {
                                             )
                                             Spacer(modifier = Modifier.height(16.dp))
                                             Button(onClick = {
-                                                messages = listOf(Message("bot", "Hai, saya siap bantu kamu!"))
-                                                ChatHistoryManager.clearHistory(context)
-                                                Toast.makeText(
-                                                    context,
-                                                    "Riwayat chat dihapus",
-                                                    Toast.LENGTH_SHORT
-                                                ).show()
+                                                isHistoryScreen = true
                                             }) {
-                                                Text("Hapus Riwayat")
+                                                Text("Riwayat Chat")
                                             }
                                         }
 
@@ -179,10 +190,16 @@ fun ChatScreen() {
                                                     }
                                                 ) {
                                                     DropdownMenuItem(
-                                                        text = { Text("Riwayat Pencarian") },
+                                                        text = { Text("Hapus Riwayat") },
                                                         onClick = {
+                                                            messages = listOf(Message("bot", "Hai, saya siap bantu kamu!"))
+                                                            ChatHistoryManager.clearHistory(context)
+                                                            Toast.makeText(
+                                                                context,
+                                                                "Riwayat chat dihapus",
+                                                                Toast.LENGTH_SHORT
+                                                            ).show()
                                                             expanded = false
-                                                            isHistoryScreen = true
                                                         }
                                                     )
                                                 }
@@ -222,7 +239,8 @@ fun ChatScreen() {
                                                 onValueChange = { inputText = it },
                                                 modifier = Modifier
                                                     .weight(1f)
-                                                    .focusRequester(focusRequester),
+                                                    .focusRequester(focusRequester)
+                                                    .background(Color(0x579D9C9C), shape = RoundedCornerShape(12.dp)),
                                                 placeholder = {
                                                     Text("Tulis pertanyaanmu")
                                                 },
@@ -236,6 +254,10 @@ fun ChatScreen() {
                                                         val userText = inputText.trim()
                                                         messages = messages + Message("user", userText)
                                                         inputText = ""
+
+                                                        isBotTyping = true
+                                                        messages = messages + Message("bot", "typing")
+
                                                         scope.launch {
                                                             try {
                                                                 val response = RetrofitClient.api.sendMessage(
@@ -246,15 +268,36 @@ fun ChatScreen() {
                                                                         "- ${it.title}\nLink: ${it.link}"
                                                                     } ?: "Tidak ada hasil relevan."
                                                                     "info_UNP" -> response.jawaban ?: "Tidak ada jawaban tersedia."
-                                                                    else -> "Jenis respons tidak dikenali."
+                                                                    else -> {
+                                                                        "Jenis respons tidak dikenali."
+//                                                                        val waktu = getCurrentTimeFormatted()
+//                                                                        val request = GeminiBuildModel.buildGeminiRequest(userText, waktu)
+//                                                                        val geminiResponse = RetrofitClient.geminiApi.sendChat(request = request)
+//                                                                        if (geminiResponse.isSuccessful) {
+//                                                                            geminiResponse.body()?.candidates
+//                                                                                ?.firstOrNull()
+//                                                                                ?.content
+//                                                                                ?.parts
+//                                                                                ?.firstOrNull()
+//                                                                                ?.text ?: "Tidak ada jawaban."
+//                                                                        } else {
+//                                                                            "Ups.. Ada yang salah. Coba lagi nanti."
+//                                                                        }
+                                                                    }
                                                                 }
 
+                                                                delay(1000)
+                                                                messages = messages.dropLast(1)
                                                                 messages = messages + Message("bot", reply)
                                                             } catch (e: Exception) {
+                                                                delay(1000)
+                                                                messages = messages.dropLast(1)
                                                                 messages = messages + Message(
                                                                     "bot",
                                                                     "Terjadi kesalahan: ${e.localizedMessage}"
                                                                 )
+                                                            } finally {
+                                                                isBotTyping = false
                                                             }
                                                         }
                                                     }
