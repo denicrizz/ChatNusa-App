@@ -1,26 +1,24 @@
 @file:OptIn(ExperimentalFoundationApi::class)
 package com.denicrizz.chatnusa.screen
-import com.denicrizz.chatnusa.MainActivity
 import android.content.Context
 import android.content.Intent
-import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import android.os.Bundle
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Text
+import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -30,38 +28,29 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import kotlinx.coroutines.delay
-import androidx.compose.material3.MaterialTheme
-import com.denicrizz.chatnusa.ui.theme.ModernTypography
+import com.denicrizz.chatnusa.MainActivity
 import com.denicrizz.chatnusa.R
-
+import com.denicrizz.chatnusa.ui.theme.ModernTypography
+import kotlinx.coroutines.delay
 
 @ExperimentalMaterial3Api
 class TutorialActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        // Mengecek apakah tutorial sudah pernah dilihat
         val sharedPreferences = getSharedPreferences("tutorial_prefs", MODE_PRIVATE)
         val isTutorialViewed = sharedPreferences.getBoolean("isTutorialViewed", false)
 
         if (isTutorialViewed) {
-            // Jika tutorial sudah dilihat, langsung buka MainActivity
             startActivity(Intent(this, MainActivity::class.java))
-            finish() // Tutup TutorialActivity
+            finish()
         } else {
-            // Jika belum, tampilkan Tutorial Screen
             setContent {
                 TutorialScreen()
             }
         }
     }
 }
-
-val Font = FontFamily(
-    Font(R.font.poppins_regular, FontWeight.Normal),
-    Font(R.font.poppins_bold, FontWeight.Bold)
-)
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -70,9 +59,9 @@ fun TutorialScreen() {
     val pagerState = rememberPagerState(pageCount = { 3 })
 
     val tutorialItems = listOf(
-        TutorialPage("Asisten Digital", "Hai butuh bantuan? Tenang, Aku siap bantu.", R.drawable.tutorial_image_1),
-        TutorialPage("Sistem Informasi Unp Kedirii", "Kamu bisa akses info seputar Unp Kediri.", R.drawable.bg),
-        TutorialPage("Akses Skripsi Kating Unp Kediri", "Aku juga bisa bantu kamu mencarikan skripsi yang kamu mau.", R.drawable.bg)
+        TutorialPage("Asisten Digital ChatNusa", "Hai! Butuh bantuan? Tenang, ChatNusa siap membantumu.", R.drawable.tutorial_image_1),
+        TutorialPage("Informasi UNP Kediri", "Dapatkan info seputar kampus, layanan, dan pembiayaan di Universitas Nusantara PGRI Kediri.", R.drawable.tutorial_image_2),
+        TutorialPage("Akses Skripsi Mahasiswa", "ChatNusa bisa bantu cari skripsi dari repository UNP Kediri dengan mudah.", R.drawable.tutorial_image_3)
     )
 
     LaunchedEffect(pagerState) {
@@ -83,53 +72,73 @@ fun TutorialScreen() {
         }
     }
 
-    MaterialTheme(typography = ModernTypography,) {
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(Color(0xFF674636))
-        ) {
-            HorizontalPager(
-                state = pagerState,
-                modifier = Modifier.weight(1f)
-            ) { page ->
-                val item = tutorialItems[page]
-                TutorialItem(item.title, item.description, item.imageRes)
-            }
+    MaterialTheme(typography = ModernTypography) {
+        Box(modifier = Modifier.fillMaxSize()) {
 
-            Row(
+            // Background samar dari logo/chatnusa
+            Image(
+                painter = painterResource(id = R.drawable.bg),
+                contentDescription = null,
                 modifier = Modifier
-                    .height(50.dp)
-                    .fillMaxWidth(),
-                horizontalArrangement = Arrangement.Center
-            ) {
-                repeat(pagerState.pageCount) { iteration ->
-                    val color = if (pagerState.currentPage == iteration) Color.DarkGray else Color.LightGray
-                    Box(
-                        modifier = Modifier
-                            .padding(4.dp)
-                            .size(8.dp)
-                            .background(color)
+                    .fillMaxSize()
+                    .graphicsLayer(alpha = 0.04f),
+                contentScale = ContentScale.Crop
+            )
+
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(
+                        Brush.verticalGradient(
+                            colors = listOf(
+                                Color(0xFF003B8E),
+                                Color(0xFF0057B8)
+                            )
+                        )
                     )
-                }
-            }
-
-            Button(
-                onClick = {
-                    val sharedPreferences = context.getSharedPreferences("tutorial_prefs", Context.MODE_PRIVATE)
-                    sharedPreferences.edit().putBoolean("isTutorialViewed", true).apply()
-
-                    val intent = Intent(context, MainActivity::class.java).apply {
-                        flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-                    }
-                    context.startActivity(intent)
-                },
-                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF3E2723)),
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(16.dp)
             ) {
-                Text(text = "Mulai", color = Color.White)
+                HorizontalPager(
+                    state = pagerState,
+                    modifier = Modifier.weight(1f)
+                ) { page ->
+                    val item = tutorialItems[page]
+                    TutorialItem(item.title, item.description, item.imageRes)
+                }
+
+                Row(
+                    modifier = Modifier
+                        .height(50.dp)
+                        .fillMaxWidth(),
+                    horizontalArrangement = Arrangement.Center
+                ) {
+                    repeat(pagerState.pageCount) { iteration ->
+                        val color = if (pagerState.currentPage == iteration) Color.White else Color.LightGray
+                        Box(
+                            modifier = Modifier
+                                .padding(4.dp)
+                                .size(8.dp)
+                                .background(color, shape = MaterialTheme.shapes.small)
+                        )
+                    }
+                }
+
+                Button(
+                    onClick = {
+                        val sharedPreferences = context.getSharedPreferences("tutorial_prefs", Context.MODE_PRIVATE)
+                        sharedPreferences.edit().putBoolean("isTutorialViewed", true).apply()
+
+                        val intent = Intent(context, MainActivity::class.java).apply {
+                            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+                        }
+                        context.startActivity(intent)
+                    },
+                    colors = ButtonDefaults.buttonColors(containerColor = Color.White),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp)
+                ) {
+                    Text(text = "Mulai", color = Color(0xFF003B8E))
+                }
             }
         }
     }
@@ -160,7 +169,8 @@ fun TutorialItem(title: String, description: String, imageRes: Int) {
             fontSize = 24.sp,
             fontWeight = FontWeight.Bold,
             color = Color.White,
-            modifier = Modifier.padding(8.dp)
+            modifier = Modifier.padding(8.dp),
+            textAlign = TextAlign.Center
         )
 
         Text(
@@ -172,7 +182,6 @@ fun TutorialItem(title: String, description: String, imageRes: Int) {
         )
     }
 }
-
 
 data class TutorialPage(
     val title: String,
